@@ -1,7 +1,64 @@
-import React from 'react'
-
+import React, {useState} from 'react'
+import {Link, useNavigate} from 'react-router-dom'
 export default function SignIn() {
+
+  const [user, setUser] = useState({})
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState(null)
+  const navigate = useNavigate() ; 
+  const handleChange = (e)=>{
+    setUser({
+      ...user,
+      [e.target.id] : e.target.value, 
+    })
+    console.log(user) 
+  } ; 
+
+  const handleSubmit = async (e)=>{
+    e.preventDefault() ; 
+    setLoading(true) 
+    try {
+      const res = await fetch('/api/v1/auth/signin',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(user),
+        })  
+        
+        if (res.ok === false){
+          setLoading(false)
+          setError(res.statusText)
+        }
+        else{
+          setLoading(false)
+          setError(null)
+          navigate('/')
+        }
+    } catch (err) {
+      setLoading(false)
+      setError(err)
+    } 
+
+    console.log(`Error : ${error}`)
+  }
   return (
-    <div>SignIn</div>
+    <div className="flex ">
+      <div className='p-3 inline-block mx-auto'>
+        <h1 className='text-3xl text-center font-medium my-7'>Sign In</h1>
+        <form onSubmit={handleSubmit} className='flex flex-col gap-4 items-center'>
+          <input type="text" placeholder='Email Address' id="email" className='rounded-lg border p-3 w-96' onChange={handleChange} />
+          <input type="password" placeholder='Password' id="password" className='rounded-lg border p-3 w-96' onChange={handleChange}/>
+          <button disabled={loading} className=' bg-slate-700 text-white w-96 rounded-lg p-2 hover:opacity-95 disabled:opacity-60'>{loading ? "LOADING..." : "SIGN IN"}</button>
+          <button className='bg-red-600 text-white w-96 rounded-lg p-2 hover:opacity-95'>CONTINUE WITH GOOGLE</button>
+        </form>
+        <div className='flex gap-2 mt-5'>
+          <span>Don't have an account ?</span>
+          <span className='text-blue-700'><Link to="/sign-in">Sign up</Link></span>
+        </div>
+        <p className='text-red-700'>{error ? error : " "}</p>
+        </div>
+    </div>
   )
 }

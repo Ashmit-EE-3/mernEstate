@@ -60,7 +60,7 @@ export default function SignUp() {
           <span>Have an account ?</span>
           <span className='text-blue-700'><Link to="/sign-in">Sign in</Link></span>
         </div>
-        {error ? <p className='text-red-700 mt-2'>{error}</p> : <p className='text-green-700 mt-2'>User Created Successfully</p> }
+        {error ? <p className='text-red-700 mt-2'>{error}</p> : <p className='text-green-700 mt-2'></p> }
       </div>
       
     </div>
