@@ -1,11 +1,15 @@
 import React, {useState} from 'react'
 import {Link, useNavigate} from 'react-router-dom'
+import {  useDispatch, useSelector } from 'react-redux' ; 
+import { signInStart,signInSuccess,signInFailure }  from '../redux/user/userSlice';
+
+
 export default function SignIn() {
 
   const [user, setUser] = useState({})
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState(null)
+  const {loading , error}  = useSelector((state)=> state.user) 
   const navigate = useNavigate() ; 
+  const dispatch = useDispatch() ; 
   const handleChange = (e)=>{
     setUser({
       ...user,
@@ -16,7 +20,7 @@ export default function SignIn() {
 
   const handleSubmit = async (e)=>{
     e.preventDefault() ; 
-    setLoading(true) 
+    dispatch(signInStart()) 
     try {
       const res = await fetch('/api/v1/auth/signin',
         {
@@ -27,21 +31,21 @@ export default function SignIn() {
           body: JSON.stringify(user),
         })  
         
-        if (res.ok === false){
-          setLoading(false)
-          setError(res.statusText)
+        const data = await res.json() ; 
+
+        if (data.success === false){
+          dispatch(signInFailure(data.message)) ; 
+          return ; 
         }
         else{
-          setLoading(false)
-          setError(null)
+          dispatch(signInSuccess(data))
           navigate('/')
         }
     } catch (err) {
-      setLoading(false)
-      setError(err)
+      dispatch(signInFailure(err.message))
     } 
 
-    console.log(`Error : ${error}`)
+    console.log(`loading : ${loading}`)
   }
   return (
     <div className="flex ">
@@ -55,9 +59,11 @@ export default function SignIn() {
         </form>
         <div className='flex gap-2 mt-5'>
           <span>Don't have an account ?</span>
-          <span className='text-blue-700'><Link to="/sign-in">Sign up</Link></span>
+          <span className='text-blue-700'><Link to="/sign-up">Sign up</Link></span>
         </div>
-        <p className='text-red-700'>{error ? error : " "}</p>
+        
+        {error && <p className='text-red-500 mt-5'>{ error }</p>}
+        
         </div>
     </div>
   )
