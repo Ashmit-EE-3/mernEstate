@@ -11,6 +11,8 @@ export default function Profile() {
   const [fileUploadError, setFileUploadError] = useState(null);
   const [formData, setFormData] = useState({});
   const { currentUser, loading , error } = useSelector((state) => state.user)
+  const [updateSuccessful, setUpdateSuccess] = useState(false) ;
+
   const dispatch = useDispatch() ; 
   console.log(loading) ; 
   const handleChange = (e) => {
@@ -37,6 +39,7 @@ export default function Profile() {
       }
 
       dispatch(updateSuccess(data)) 
+      setUpdateSuccess(true) ; 
     } catch (error) {
       dispatch(updateFailure(error.message))  
     }
@@ -91,7 +94,8 @@ export default function Profile() {
         <span className='text-red-700 cursor-pointer'>Sign Out</span>
       </div>
       <div className='text-green-700 text-center cursor-pointer my-3'>Show Listings</div>
-      {error ? <div className='text-red-700 text-center cursor-pointer my-3'>{error}</div> : <div></div>}
+      {error ? <div className='text-red-700 text-center cursor-pointer my-3'>{error}</div> : "" }
+      {updateSuccessful ? <div className='text-green-700 text-center cursor-pointer my-3'>User updated successfully!</div> : ""}
     </div>
   )
 }
