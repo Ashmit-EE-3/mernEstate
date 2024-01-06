@@ -11,74 +11,76 @@ export default function Profile() {
   const [filePer, setfilePer] = useState(0);
   const [fileUploadError, setFileUploadError] = useState(null);
   const [formData, setFormData] = useState({});
-  const { currentUser, loading , error } = useSelector((state) => state.user)
-  const [updateSuccessful, setUpdateSuccess] = useState(false) ;
+  const { currentUser, loading, error } = useSelector((state) => state.user)
+  const [updateSuccessful, setUpdateSuccess] = useState(false);
+  const [listings, setListings] = useState([]);
+  const [listingsError, setListingsError] = useState(null);
 
-  const dispatch = useDispatch() ; 
-  console.log(loading) ; 
+  const dispatch = useDispatch();
+  console.log(loading);
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.id]: e.target.value })
-    console.log({formData});
+    console.log({ formData });
   }
 
-  const handleSubmit = async (e)=>{
-    e.preventDefault() ; 
+  const handleSubmit = async (e) => {
+    e.preventDefault();
     try {
-      dispatch(updateStart()) ;
-      const res = await fetch(`api/v1/user/update/${currentUser._id}`,{
-        method : 'POST', 
-        headers : {
-          "Content-Type" : "application/json",   
-        }, 
-        body : JSON.stringify(formData) 
+      dispatch(updateStart());
+      const res = await fetch(`api/v1/user/update/${currentUser._id}`, {
+        method: 'POST',
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData)
       })
 
-      const data = await res.json() ; 
-      if (data.success === false){
-        dispatch(updateFailure(data.message)) ; 
-        return ; 
+      const data = await res.json();
+      if (data.success === false) {
+        dispatch(updateFailure(data.message));
+        return;
       }
 
-      dispatch(updateSuccess(data)) 
-      setUpdateSuccess(true) ; 
+      dispatch(updateSuccess(data))
+      setUpdateSuccess(true);
     } catch (error) {
-      dispatch(updateFailure(error.message))  
+      dispatch(updateFailure(error.message))
     }
   }
 
-  const handleDeleteClick = async (e)=>{
+  const handleDeleteClick = async (e) => {
     try {
-      dispatch(deleteUserStart()) ; 
+      dispatch(deleteUserStart());
 
       const res = await fetch(`/api/v1/user/delete/${currentUser._id}`, {
-        method : 'DELETE',
+        method: 'DELETE',
       })
 
-      const data = await res.json() ; 
-      if (data.success === false){
-        dispatch(deleteUserFailure(data.msg))  
-        return ; 
+      const data = await res.json();
+      if (data.success === false) {
+        dispatch(deleteUserFailure(data.msg))
+        return;
       }
 
-      dispatch(deleteUserSuccess()) ; 
+      dispatch(deleteUserSuccess());
 
     } catch (error) {
-      dispatch(deleteUserFailure(error.message))  
+      dispatch(deleteUserFailure(error.message))
     }
   }
 
-  const handleSignOutClick = async (e) =>{
+  const handleSignOutClick = async (e) => {
     try {
-      dispatch(signOutStart()) ;
-      const res = await fetch('/api/v1/auth/signout',{
+      dispatch(signOutStart());
+      const res = await fetch('/api/v1/auth/signout', {
         method: 'GET',
       })
 
-      const data = await res.json() ;
-      
-      if (data.success === true ){
+      const data = await res.json();
+
+      if (data.success === true) {
         dispatch(signOutSuccess())
-        return ; 
+        return;
       }
 
       dispatch(signOutFailure(data.msg))
@@ -87,6 +89,24 @@ export default function Profile() {
       dispatch(signOutFailure(error))
     }
   }
+
+  const handleShowListingsClick = async (e) => {
+    try {
+      const res = await fetch(`/api/v1/user/listings/${currentUser._id}`);
+
+      const data = await res.json();
+
+      if (data.success === false) return setListingsError(data.message)
+
+      setListings(data);
+    } catch (err) {
+      setListingsError(err.message)
+    }
+
+    console.log(listings)
+  }
+
+
   const handleFileUpload = (file) => {
     const storage = getStorage();
     const fileName = new Date().getTime() + file.name;
@@ -124,7 +144,7 @@ export default function Profile() {
         <input onChange={(e) => setFile(e.target.files[0])} hidden type="file" accept="image/*" ref={profileRef} />
         <img onClick={() => profileRef.current.click()} src={formData.avatar || currentUser.avatar} className="rounded-full w-24 h-24 object-cover cursor-pointer " alt="profile" />
         <p className='text-green-700'>
-          {fileUploadError ? <p className='text-red-700'>Error Image Upload!</p> : (filePer === 100 ? 'Image uploaded successfully!' : (filePer > 0 && filePer<100 ? `Image upload in process: ${filePer}%` : ""  ))}
+          {fileUploadError ? <p className='text-red-700'>Error Image Upload!</p> : (filePer === 100 ? 'Image uploaded successfully!' : (filePer > 0 && filePer < 100 ? `Image upload in process: ${filePer}%` : ""))}
         </p>
         <input onChange={handleChange} className='w-full rounded-lg p-3' type='text' defaultValue={currentUser.username} id="username" />
         <input onChange={handleChange} className='w-full rounded-lg p-3' type='text' defaultValue={currentUser.email} id="email" />
@@ -134,11 +154,32 @@ export default function Profile() {
       </form>
       <div className='flex justify-between my-3'>
         <span onClick={handleDeleteClick} className='text-red-700 cursor-pointer'>Delete Account</span>
-        <span onClick={handleSignOutClick}className='text-red-700 cursor-pointer'>Sign Out</span>
+        <span onClick={handleSignOutClick} className='text-red-700 cursor-pointer'>Sign Out</span>
       </div>
-      <div className='text-green-700 text-center cursor-pointer my-3'>Show Listings</div>
-      {error ? <div className='text-red-700 text-center cursor-pointer my-3'>{error}</div> : "" }
+      {error ? <div className='text-red-700 text-center cursor-pointer my-3'>{error}</div> : ""}
       {updateSuccessful ? <div className='text-green-700 text-center cursor-pointer my-3'>User updated successfully!</div> : ""}
+      <div onClick={handleShowListingsClick} className='text-green-700 text-center cursor-pointer my-3'>Show Listings</div>
+      <div>
+        {listingsError ? <p className='text-center text-red-700'>Error Showing Listings</p> : ""}
+        {listings && listings.length > 0 && <p className='text-center text-3xl my-5 font-semibold'>Your Listings</p>}
+        {
+          listings.length > 0 && listings.map((list, index) => (
+            <Link to={`/listing/${list._id}`}>
+              <div className='flex justify-between m-1 p-3 border items-center'>
+                <div className='flex items-center gap-4'>
+                <img key={index} src={list.imageUrls[0]} alt={`image-${index}`} className='w-16 h-16 object-cover rounded-lg' />
+                <p className='text-1 hover:underline font-semibold truncate'>{list.name}</p>
+                </div>
+                <div className='flex flex-col'>
+                  <button type='button' className='p-1 text-red-700 rounded-lg uppercase hover:opacity-75'>Delete</button>
+                  <button type='button' className='p-1 text-slate-700 rounded-lg uppercase hover:opacity-75'>Edit</button>
+                </div>
+              </div>
+            </Link>
+          ))
+        }
+        {/* {listings.length === 0 && <p className='text-center text-red-700'>You don't have any listings yet!</p>} */}
+      </div>
     </div>
   )
 }
