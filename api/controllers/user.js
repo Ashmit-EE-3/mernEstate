@@ -57,4 +57,17 @@ const getUserListings = async (req,res,next)=>{
         next(error)
     }
 }
-module.exports = { test, updateUser, deleteUser, getUserListings}
+
+const getUser = async (req,res,next)=>{
+    try {
+        const user = await User.findById(req.params.id) ; 
+        console.log(user) ; 
+        if (!user) return next(errorHandler(404,"No such user exists!"))
+
+        const {password : pass, ...restInfo} = user._doc
+        res.status(200).json(restInfo) ;
+    } catch (error) {
+        next(error)
+    }
+}
+module.exports = { test, updateUser, deleteUser, getUserListings, getUser}

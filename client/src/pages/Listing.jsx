@@ -5,12 +5,15 @@ import SwiperCore from 'swiper';
 import { Navigation } from 'swiper/modules';
 import 'swiper/css/bundle';
 import { FaBath, FaBed, FaChair, FaMapMarkerAlt, FaParking } from 'react-icons/fa';
+import { useSelector } from 'react-redux';
+import Contact from '../components/Contact';
 
 function Listing() {
+  const {currentUser} = useSelector(state => state.user)
   SwiperCore.use([Navigation]);
-
   const params = useParams();
   const [listingData, setListingData] = useState({});
+  const [contact, setContact] = useState(false) ;
 
   useEffect(() => {
     const fetchListing = (async () => {
@@ -60,40 +63,43 @@ function Listing() {
                 {listingData.offer &&
                   <p className='bg-green-900 w-full max-w-[200px] text-white text-center p-1 rounded-md'>
                     ${+listingData.regularPrice - +listingData.discountedPrice}
-                  </p> 
+                  </p>
                 }
               </div>
               <p className='text-slate-800'><span className='font-semibold text-black '>Description - </span>
                 {listingData.description}</p>
 
-                <ul className='text-green-900 flex flex-wrap font-semibold text-sm gap-4 sm:gap-6'>
-                  <li className='flex items-center gap-1 whitespace-nowrap'>
-                    <FaBed className='text-lg' />
-                    {listingData.bedrooms > 1 ? `${listingData.bedrooms} beds ` : `${listingData.bedrooms} bed `}
-                  </li>
-                  <li className='flex items-center gap-1 whitespace-nowrap'>
-                    <FaBath className='text-lg' />
-                    {listingData.bathrooms > 1 ? `${listingData.bathrooms} baths ` : `${listingData.bathrooms} bath `}
-                  </li>
-                  <li className='flex items-center gap-1 whitespace-nowrap'>
-                    <FaParking className='text-lg' />
-                    {listingData.parking > 1 ? "Parking Spot" : "No Parking"}
-                  </li>
-                  <li className='flex items-center gap-1 whitespace-nowrap'>
-                    <FaChair className='text-lg' />
-                    {listingData.furnished ? "Furnished" : "Unfurnished"}
-                  </li>
-                </ul>
+              <ul className='text-green-900 flex flex-wrap font-semibold text-sm gap-4 sm:gap-6'>
+                <li className='flex items-center gap-1 whitespace-nowrap'>
+                  <FaBed className='text-lg' />
+                  {listingData.bedrooms > 1 ? `${listingData.bedrooms} beds ` : `${listingData.bedrooms} bed `}
+                </li>
+                <li className='flex items-center gap-1 whitespace-nowrap'>
+                  <FaBath className='text-lg' />
+                  {listingData.bathrooms > 1 ? `${listingData.bathrooms} baths ` : `${listingData.bathrooms} bath `}
+                </li>
+                <li className='flex items-center gap-1 whitespace-nowrap'>
+                  <FaParking className='text-lg' />
+                  {listingData.parking > 1 ? "Parking Spot" : "No Parking"}
+                </li>
+                <li className='flex items-center gap-1 whitespace-nowrap'>
+                  <FaChair className='text-lg' />
+                  {listingData.furnished ? "Furnished" : "Unfurnished"}
+                </li>
+              </ul>
+            { currentUser && listingData.userRef !== currentUser._id && !contact && 
+              <button onClick={()=>setContact(true)} className='uppercase bg-slate-700 p-3 rounded-lg text-white hover:opacity-95'>Contact Landlord</button>
+            }
+            {
+              contact && <Contact listing={listingData} />
+            }
             </div>
-          </>
-
-
-            : <p>Something went wrong!</p>
-}
-          </div >
-      )
+          </> : <p>Something went wrong!</p>
+      }
+    </div >
+  )
 }
 
-      export default Listing
+export default Listing
 
 
