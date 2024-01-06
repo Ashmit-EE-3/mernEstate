@@ -45,7 +45,6 @@ const deleteUser = async (req, res, next) => {
 }
 
 const getUserListings = async (req,res,next)=>{
-    console.log({userRef : req.params.id})
     try {
         if (req.user.id !== req.params.id) return next(errorHandler(401, "You can view your own listings only!"))
         console.log({userRef : req.params.id})

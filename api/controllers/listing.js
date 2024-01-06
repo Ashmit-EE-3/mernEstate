@@ -1,4 +1,5 @@
 const Listing = require("../models/listing");
+const errorHandler = require("../utils/error");
 
 const createListing = async (req,res,next)=>{
     try {
@@ -9,4 +10,20 @@ const createListing = async (req,res,next)=>{
     }
 }
 
-module.exports = {createListing}
+const deleteListing = async (req,res,next)=>{
+    const listing = await Listing.findById(req.params.id) ;; 
+
+    if (!listing) return next(errorHandler(404,"Listing not Found!"))
+
+    if (listing.userRef !== req.user.id) return next(errorHandler(401,"You can delete your own listings only!"))
+
+    try {
+        await Listing.findByIdAndDelete(req.params.id) ; 
+
+        res.status(200).json({success : true, msg : "Listing has been successfully deleted!"})
+    } catch (error) {
+        next(error)        
+    }
+}
+
+module.exports = {createListing, deleteListing}
