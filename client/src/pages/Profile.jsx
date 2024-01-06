@@ -106,7 +106,24 @@ export default function Profile() {
     console.log(listings)
   }
 
+  const handleDeleteListingClick = async (e)=>{
+    try {
+      const res = await fetch(`/api/v1/listing/delete/${e.target.id}`, {
+        method : 'DELETE',
+      })
+      
+      const data = await res.json() ; 
 
+      if (data.success === false){
+        console.log(data.message)
+        return ; 
+      } 
+
+      setListings((prev)=> prev.filter((listing)=> listing._id !== e.target.id))
+    } catch (error) {
+      console.log(error) ;  
+    }
+  }
   const handleFileUpload = (file) => {
     const storage = getStorage();
     const fileName = new Date().getTime() + file.name;
@@ -164,18 +181,17 @@ export default function Profile() {
         {listings && listings.length > 0 && <p className='text-center text-3xl my-5 font-semibold'>Your Listings</p>}
         {
           listings.length > 0 && listings.map((list, index) => (
-            <Link to={`/listing/${list._id}`}>
+            
               <div className='flex justify-between m-1 p-3 border items-center'>
                 <div className='flex items-center gap-4'>
-                <img key={index} src={list.imageUrls[0]} alt={`image-${index}`} className='w-16 h-16 object-cover rounded-lg' />
-                <p className='text-1 hover:underline font-semibold truncate'>{list.name}</p>
+                <img key={index}src={list.imageUrls[0]} alt={`image-${index}`} className='w-16 h-16 object-cover rounded-lg' />
+                <Link to={`/listing/${list._id}`} className='text-1 hover:underline font-semibold truncate'>{list.name}</Link>
                 </div>
                 <div className='flex flex-col'>
-                  <button type='button' className='p-1 text-red-700 rounded-lg uppercase hover:opacity-75'>Delete</button>
-                  <button type='button' className='p-1 text-slate-700 rounded-lg uppercase hover:opacity-75'>Edit</button>
+                  <button onClick={handleDeleteListingClick} id={list._id} type='button' className='p-1 text-red-700 rounded-lg uppercase hover:opacity-75'>Delete</button>
+                  <button type='button' id={list._id} className='p-1 text-slate-700 rounded-lg uppercase hover:opacity-75'>Edit</button>
                 </div>
               </div>
-            </Link>
           ))
         }
         {/* {listings.length === 0 && <p className='text-center text-red-700'>You don't have any listings yet!</p>} */}
