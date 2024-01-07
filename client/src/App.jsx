@@ -10,12 +10,14 @@ import Header from './components/Header.jsx'
 import PrivateRoute from './components/PrivateRoute.jsx'
 import Listing from './pages/Listing.jsx'
 import UpdateListing from './pages/UpdateListing.jsx'
+import Search from './pages/Search.jsx'
 
 export default function App() {
   return (
     <>
-      <Header />
+    
       <BrowserRouter>
+      <Header/>
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/about" element={<About />} />
@@ -27,6 +29,7 @@ export default function App() {
             <Route path="/update-listing/:listingID" element={<UpdateListing/>} />  
           </Route>
           <Route path="/listing/:listingID" element={<Listing />}/>
+          <Route path="/search" element={<Search/>}/>
         </Routes>
       </BrowserRouter>
     </>
